@@ -66,3 +66,34 @@ export const getAllConversationMessages = async (conversationSid) => {
     })
   return data;
 }
+
+export const beginVerifyPhoneNumber = async (phoneNumber) => {
+  let data;
+  await superagent
+    .post('/verify-phone-number')
+    .send({ phoneNumber })
+    .set('Accept', 'application/json')
+    .then(res => {
+      data = res.body;
+    })
+    .catch(err => {
+      data = err;
+    });
+  return data;
+}
+
+export const submitVerifyCode = async (phoneNumber, verificationCode) => {
+  let data;
+  await superagent
+    .post('/submit-verification-code')
+    .send({ phoneNumber, verificationCode })
+    .set('Accept', 'application/json')
+    .then(res => {
+      data = res.body;
+    })
+    .catch(err => {
+      data = err;
+    });
+    console.log('data ', data);
+  return data;
+};

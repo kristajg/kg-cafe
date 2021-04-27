@@ -22,6 +22,9 @@ const ChatArea = styled.div`
   height: 500px;
   position: relative;
   background-color: #fff;
+  :focus {
+    outline: none;
+  }
 `;
 
 const Messages = styled.div``;
@@ -45,6 +48,7 @@ class PickupNow extends Component {
   };
 
   async componentDidMount () {
+    this.chatArea.addEventListener('keydown', this.handleKeyDown);
   //   const { riderUsername, driverUsername } = this.state;
   //   // Load conversation with sid && get messages
   //   const connectionStatusResult = await handlePickupNow(riderUsername, driverUsername);
@@ -56,7 +60,9 @@ class PickupNow extends Component {
     await this.updateMessages();
   }
 
-  // TODO: need listener for inc messages
+  componentWillUnmount() {
+    this.chatArea.removeEventListener('keydown', this.handleKeyDown);
+  }
 
   updateMessages = async () => {
     const messages = await getAllConversationMessages(this.state.conversationProxy);
@@ -75,6 +81,12 @@ class PickupNow extends Component {
     this.updateMessages();
   }
 
+  handleKeyDown = event => {
+    if (event.keyCode === 13) {
+      this.updateMessages();
+    }
+  }
+
   render() {
     return (
       <>
@@ -85,9 +97,9 @@ class PickupNow extends Component {
           Taxi with driver {this.state.driverUsername} confirmed.
           Arriving in 10 minutes. Chat with driver below.
         </Div>
-        <ChatArea>
+        <ChatArea tabIndex='0' ref={ref => this.chatArea = ref}>
           {this.state.messages.length ? (
-            this.state.messages.map((message, i) => <MessageBubble key={`message-num-${i}`} message={message} riderUsername={this.state.riderUsername} />)
+            this.state.messages.map((message, i) => <MessageBubble key={`message-num-${i}`} message={message} riderUsername={this.state.riderUsername} driverUsername={this.state.driverUsername} />)
           ) : (
             <div>
               No messages to speak of (yet..!)
@@ -98,6 +110,7 @@ class PickupNow extends Component {
             <TextInput
               placeholder={`Send message to ${this.state.driverUsername}`}
               onChange={this.handleMessageInput}
+              value={this.state.newMessage}
             />
             <Button onClick={this.handleSendMessage}>Send Message</Button>
           </MessageInputWrapper>

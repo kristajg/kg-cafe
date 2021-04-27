@@ -25,7 +25,7 @@ class BookTaxi extends Component {
         </H2>
         <Button onClick={() => this.props.history.push('/pickup-now')}>Pickup Now</Button>
         <br />
-        <Button onClick={() => {}}>Book Taxi for Future Time</Button>
+        <Button onClick={() => this.props.history.push('/pickup-later')}>Book Taxi for Future Time</Button>
       </>
     );
   }

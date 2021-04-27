@@ -39,7 +39,7 @@ const conversationInit = async (conversationName, riderUsername, driverUsername)
       return client.conversations.conversations(conversation.sid)
         .participants
         .create({
-          'messagingBinding.address': '+', // Hehe that's my phone number I'm baby driver
+          'messagingBinding.address': '+17242726172', // Hehe that's my phone number I'm baby driver
           'messagingBinding.proxyAddress': process.env.TWILIO_PHONE_NUMBER_ONE,
         });
     })
@@ -123,6 +123,41 @@ app.post('/get-conversation-messages', (req, res) => {
     })
     .catch(err => {
       res.send(err);
+    });
+});
+
+// PHONE NUMBER VERIFICATION
+app.post('/verify-phone-number', (req, res) => {
+  client.verify.services(process.env.TWILIO_VERIFY_SERVICE_SID)
+    .verifications
+    .create({
+      to: req.body.phoneNumber,
+      channel: 'sms'
+    })
+    .then(verification => {
+      res.json(verification);
+    })
+    .catch(err => {
+      res.send(err);
+      console.log('Error submitting user number to begin verification process ', err);
+    });
+});
+
+app.post('/submit-verification-code', (req, res) => {
+  client.verify.services(process.env.TWILIO_VERIFY_SERVICE_SID)
+    .verificationChecks
+    .create({
+      to: req.body.phoneNumber,
+      code: req.body.verificationCode,
+    })
+    .then(verification_check => {
+      console.log('Verification check ', verification_check);
+      console.log(verification_check.status)
+      res.json(verification_check);
+    })
+    .catch(err => {
+      res.send(err);
+      console.log('Error verifying user number code ', err);
     });
 });
 

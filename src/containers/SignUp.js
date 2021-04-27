@@ -9,6 +9,9 @@ import Button from '../components/Button';
 import H1 from '../components/H1';
 import Div from '../components/Div';
 
+// Helpers
+import { beginVerifyPhoneNumber } from '../helpers/twilioHelpers';
+
 const ErrorMessage = styled.div``;
 
 const AdditionalText = styled.div`
@@ -31,18 +34,18 @@ class SignUp extends Component {
     // TODO: add validation for numbers & length
     // let isnum = /^\d+$/.test(val);
     // TODO: format phone number && test for numeral
-    // if (event.target.id === 'phonenumber') {
-    //   const phoneNumberValue =
-    //     this.state.phoneNumberValue === '' ? `+1${val}` : val;
-    //   this.setState({ phoneNumberValue });
-    // }
-    this.setState({
-      usernameValid: !!val,
-      usernameValue: val,
-    });
+    if (event.target.id === 'phonenumber') {
+      const phoneNumberValue =
+        this.state.phoneNumberValue === '' ? `+1${val}` : val;
+      this.setState({ phoneNumberValue });
+    }
+    if (event.target.id === 'username') {
+      this.setState({ usernameValue: val })
+    }
+    this.setState({ usernameValid: !!val });
   };
 
-  handlePhoneNumberSubmit = () => {
+  handlePhoneNumberSubmit = async () => {
     const { usernameValue } = this.state;
     if (!usernameValue) {
       this.setState({ usernameValid: false });
@@ -53,8 +56,9 @@ class SignUp extends Component {
     // if phone number already verified, take to main screen
     // if phone number not verified, send code
     window.localStorage.setItem('rider-username', this.state.usernameValue);
-    // window.localStorage.setItem('rider-phonenumber', this.state.phoneNumberValue);
-    this.props.history.push('/book-taxi');
+    window.localStorage.setItem('rider-phonenumber', this.state.phoneNumberValue);
+    const verification = await beginVerifyPhoneNumber(this.state.phoneNumberValue);
+    this.props.history.push('/verification');
   };
 
   render() {
@@ -64,8 +68,8 @@ class SignUp extends Component {
           Hello, welcome to Owl Taxis! &#x1F695;
         </H1>
         <Div marginBottom='60px'>
-          {/* Enter your username & phone number to continue */}
-          Enter a username to sign up
+          Enter your username & phone number to continue
+          {/* Enter a username to sign up */}
         </Div>
         <TextInput
           id="username"
@@ -73,23 +77,23 @@ class SignUp extends Component {
           value={this.state.usernameValue}
           placeholder="Username"
         />
-        {/* <br />
+        <br />
         <br />
         <TextInput
           id="phonenumber"
           onChange={this.onChange}
           value={this.state.phoneNumberValue}
           placeholder="Phone Number"
-        /> */}
+        />
         {!this.state.usernameValid && (<ErrorMessage>Please enter a username to proceed.</ErrorMessage>)}
         <br />
         <br />
         <Button onClick={this.handlePhoneNumberSubmit} disabled={!this.state.usernameValue}>
           Submit
         </Button>
-        {/* <AdditionalText>
+        <AdditionalText>
           We will send you an SMS message to verify your phone number in order to book a taxi.
-        </AdditionalText> */}
+        </AdditionalText>
       </>
     );
   }
